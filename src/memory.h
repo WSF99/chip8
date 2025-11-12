@@ -8,4 +8,5 @@ void memory_init(Memory *m);
 uint8_t memory_read(Memory *m, uint16_t addr);
 void memory_write(Memory *m, uint16_t addr, uint8_t val);
 int memory_load_rom(Memory *m, const char *path);
-#endif
+
+#endif // MEMORY_H
