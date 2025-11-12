@@ -4,6 +4,7 @@
 
 void memory_init(Memory *m) {
     memset(m->memory, 0, sizeof(m->memory));
+    memcpy(&m->memory[FONTSET_ADDR], chip8_fontset, sizeof(chip8_fontset));
 }
 
 uint8_t memory_read(Memory *m, uint16_t addr) {
