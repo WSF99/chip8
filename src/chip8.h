@@ -14,6 +14,7 @@
 
 #include "memory.h"
 #include "display.h"
+#include "input.h"
 
 typedef struct {
     uint8_t memory[MEM_SIZE];
@@ -25,6 +26,7 @@ typedef struct {
 
 typedef struct {
     uint8_t keys[16];
+    int waiting_for_key;
 } Input;
 
 typedef struct {
