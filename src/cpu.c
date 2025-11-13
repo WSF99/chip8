@@ -112,8 +112,6 @@ void cpu_cycle(Chip8 *c8) {
                     break;
             }
             break;
-        default:
-            break;
     }
 }
 
