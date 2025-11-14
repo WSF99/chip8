@@ -9,18 +9,20 @@ TARGET = $(BINDIR)/chip8
 SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
-all: build
+all: sdl
 
 build: CFLAGS += -DHEADLESS
-build: LDFLAGS +=
-build: prepare $(TARGET)
+build: prepare clean_objs $(TARGET)
 
 sdl: CFLAGS += -DUSE_SDL
 sdl: LDFLAGS += -lSDL2
-sdl: prepare $(TARGET)
+sdl: prepare clean_objs $(TARGET)
 
 prepare:
 	mkdir -p $(BINDIR) $(OBJDIR)
+
+clean_objs:
+	rm -f $(OBJDIR)/*.o
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -31,4 +33,4 @@ $(TARGET): $(OBJS)
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
 
-.PHONY: all build sdl clean prepare
+.PHONY: all build sdl clean prepare clean_objs
