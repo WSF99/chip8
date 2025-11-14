@@ -1,6 +1,6 @@
 #include "memory.h"
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 void memory_init(Memory *m) {
     memset(m->memory, 0, sizeof(m->memory));
