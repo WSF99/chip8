@@ -16,6 +16,8 @@ int platform_init(const char *title, int x, int y, int w, int h) {
         return -2;
     }
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_RenderSetVSync(ren, 0);
+
     if (!ren) {
         fprintf(stderr, "SDL_CreateRenderer Error: %s\n", SDL_GetError());
         return -3;
@@ -77,8 +79,6 @@ void platform_shutdown() {
 
 void platform_update(Display *disp) {
 #ifdef USE_SDL
-    SDL_UpdateTexture(NULL, NULL, NULL, 0);
-    SDL_RenderClear(ren);
     for (int y = 0; y < DISPLAY_HEIGHT; y++) {
         for (int x = 0; x < DISPLAY_WIDTH; x++) {
             if (disp->pixels[y * DISPLAY_WIDTH + x]) {
