@@ -18,12 +18,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (platform_init(
-            "Chip8 Emulator",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            640, 320) != 0)
-    {
+    if (platform_init("Chip8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 320) != 0) {
         fprintf(stderr, "Failed to initialize SDL platform\n");
         return 1;
     }
