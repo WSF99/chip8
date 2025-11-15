@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 typedef struct Memory {
-    uint8_t memory[MEM_SIZE];
+  uint8_t memory[MEM_SIZE];
 } Memory;
 
 void memory_init(Memory *m);

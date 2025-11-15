@@ -1,7 +1,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
-#include "input.h"
 #include "display.h"
+#include "input.h"
 
 int platform_init(const char *title, int x, int y, int w, int h);
 void platform_update(Display *disp);

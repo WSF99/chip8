@@ -4,9 +4,9 @@
 #define NUM_KEYS 16
 
 typedef struct Input {
-    uint8_t keys[NUM_KEYS];
-    uint8_t waiting_for_key;
-    uint8_t exit_signal;
+  uint8_t keys[NUM_KEYS];
+  uint8_t waiting_for_key;
+  uint8_t exit_signal;
 } Input;
 
 void input_init(Input *in);
