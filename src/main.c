@@ -24,6 +24,11 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  if (platform_init_debug("Chip8 Memory Viewer", 100, 100, 320, 480) != 0) {
+    fprintf(stderr, "Failed to initialize SDL debug platform\n");
+    return 1;
+  }
+
   uint32_t last_cpu_tick = SDL_GetTicks();
   uint32_t last_timer_tick = SDL_GetTicks();
 
@@ -42,7 +47,7 @@ int main(int argc, char **argv) {
 
     if (now - last_cpu_tick >= CYCLE_DELAY_MS) {
       chip8_cycle(&c8);
-      platform_update(&c8.disp);
+      platform_update(&c8);
       last_cpu_tick = SDL_GetTicks();
     }
 
