@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     if (now - last_cpu_tick >= CYCLE_DELAY_MS) {
       chip8_cycle(&c8);
       platform_update(&c8);
-      last_cpu_tick = now; // micro-otimização
+      last_cpu_tick = now;
     }
 
     if (now - last_timer_tick >= (1000 / TIMER_HZ)) {
