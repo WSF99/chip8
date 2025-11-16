@@ -1,14 +1,18 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#define DISPLAY_WIDTH 64
-#define DISPLAY_HEIGHT 32
-
 #include "memory.h"
+#include <stddef.h>
 #include <stdint.h>
 
-typedef struct Display {
-  uint8_t pixels[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+enum {
+  DISPLAY_WIDTH = 64,
+  DISPLAY_HEIGHT = 32,
+  DISPLAY_SIZE = DISPLAY_WIDTH * DISPLAY_HEIGHT
+};
+
+typedef struct {
+  uint8_t pixels[DISPLAY_SIZE];
 } Display;
 
 void display_init(Display *disp);
