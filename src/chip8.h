@@ -1,25 +1,27 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#define NUM_REGS 16
-#define STACK_SIZE 16
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "display.h"
 #include "input.h"
 #include "memory.h"
 #include "timers.h"
-#include <stdint.h>
 
-typedef struct Chip8 {
+enum { CHIP8_NUM_REGS = 16, CHIP8_STACK_LEN = 16 };
+
+typedef struct {
   Memory mem;
   Display disp;
   Input input;
   Timers timers;
-  uint8_t V[NUM_REGS];
+  uint8_t V[CHIP8_NUM_REGS];
   uint16_t I;
   uint16_t pc;
   uint8_t sp;
-  uint16_t stack[STACK_SIZE];
+  uint16_t stack[CHIP8_STACK_LEN];
 } Chip8;
 
 void chip8_init(Chip8 *c8);
