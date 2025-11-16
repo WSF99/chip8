@@ -7,7 +7,7 @@ void memory_init(Memory *m) {
   memcpy(&m->memory[FONTSET_ADDR], chip8_fontset, sizeof(chip8_fontset));
 }
 
-uint8_t memory_read(Memory *m, uint16_t addr) {
+uint8_t memory_read(const Memory *m, uint16_t addr) {
   if (addr >= MEM_SIZE)
     return 0;
   return m->memory[addr];
@@ -24,16 +24,33 @@ int memory_load_rom(Memory *m, const char *path) {
   if (!file)
     return -1;
 
-  fseek(file, 0, SEEK_END);
-  long size = ftell(file);
-  fseek(file, 0, SEEK_SET);
+  if (fseek(file, 0, SEEK_END) != 0) {
+    fclose(file);
+    return -4;
+  }
 
-  if (size <= 0 || START_ADDR + size > MEM_SIZE) {
+  long size = ftell(file);
+  if (size < 1) {
+    fclose(file);
+    return -5;
+  }
+
+  if (fseek(file, 0, SEEK_SET) != 0) {
+    fclose(file);
+    return -6;
+  }
+
+  if (START_ADDR + size > MEM_SIZE) {
     fclose(file);
     return -2;
   }
 
-  fread(&m->memory[START_ADDR], 1, size, file);
+  size_t read = fread(&m->memory[START_ADDR], 1, size, file);
   fclose(file);
+
+  if (read != (size_t)size) {
+    return -3;
+  }
+
   return 0;
 }
