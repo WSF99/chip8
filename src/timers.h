@@ -5,8 +5,8 @@
 #define CYCLE_DELAY_MS 2
 
 typedef struct Timers {
-  uint8_t delay_timer;
-  uint8_t sound_timer;
+  uint8_t dt;
+  uint8_t st;
 } Timers;
 
 void timers_update(Timers *timers);

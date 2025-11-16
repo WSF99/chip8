@@ -134,16 +134,16 @@ void chip8_cycle(Chip8 *c8) {
   case 0xF:
     switch (kk) {
     case 0x07: // LD Vx, DT
-      c8->V[x] = c8->timers.delay_timer;
+      c8->V[x] = c8->timers.dt;
       break;
     case 0x0A: // LD Vx, K
       input_wait_for_key(&c8->input, x);
       break;
     case 0x15: // LD DT, Vx
-      c8->timers.delay_timer = c8->V[x];
+      c8->timers.dt = c8->V[x];
       break;
     case 0x18: // LD ST, Vx
-      c8->timers.sound_timer = c8->V[x];
+      c8->timers.st = c8->V[x];
       break;
     case 0x1E: // ADD I, Vx
       c8->I += c8->V[x];
