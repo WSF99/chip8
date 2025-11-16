@@ -15,7 +15,7 @@ build: CFLAGS += -DHEADLESS
 build: prepare clean_objs $(TARGET)
 
 sdl: CFLAGS += -DUSE_SDL
-sdl: LDFLAGS += -lSDL2
+sdl: LDFLAGS += -lSDL2 -lSDL2_ttf
 sdl: prepare clean_objs $(TARGET)
 
 prepare:
