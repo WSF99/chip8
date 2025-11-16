@@ -35,7 +35,8 @@ int main(int argc, char **argv) {
   while (!c8.input.exit_signal) {
     uint32_t now = SDL_GetTicks();
     platform_handle_input(&c8.input);
-    if (c8.input.waiting_for_key) {
+
+    if (c8.input.waiting_for_key >= 0) {
       for (uint8_t k = 0; k < 16; k++) {
         if (c8.input.keys[k]) {
           c8.V[c8.input.waiting_for_key] = k;
@@ -48,12 +49,12 @@ int main(int argc, char **argv) {
     if (now - last_cpu_tick >= CYCLE_DELAY_MS) {
       chip8_cycle(&c8);
       platform_update(&c8);
-      last_cpu_tick = SDL_GetTicks();
+      last_cpu_tick = now; // micro-otimização
     }
 
     if (now - last_timer_tick >= (1000 / TIMER_HZ)) {
       timers_update(&c8.timers);
-      last_timer_tick = SDL_GetTicks();
+      last_timer_tick = now;
     }
   }
 
