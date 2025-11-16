@@ -4,167 +4,180 @@
 #include <string.h>
 
 static uint16_t fetch_opcode(Chip8 *chip8) {
-  uint8_t hi = memory_read(&chip8->mem, chip8->pc);
-  uint8_t lo = memory_read(&chip8->mem, chip8->pc + 1);
-  return (hi << 8) | lo;
+  const uint_fast8_t hi = memory_read(&chip8->mem, chip8->pc);
+  const uint_fast8_t lo = memory_read(&chip8->mem, chip8->pc + 1);
+  return (uint16_t)((hi << 8) | lo);
 }
 
 void chip8_cycle(Chip8 *c8) {
-
-  uint16_t opcode = fetch_opcode(c8);
+  const uint16_t opcode = fetch_opcode(c8);
   c8->pc += 2;
-  uint16_t op0 = (opcode & 0xF000) >> 12;
-  uint16_t nnn = opcode & 0x0FFF;
-  uint8_t n = opcode & 0x000F;
-  uint8_t x = (opcode & 0x0F00) >> 8;
-  uint8_t y = (opcode & 0x00F0) >> 4;
-  uint8_t kk = opcode & 0x00FF;
+
+  const uint_fast16_t op0 = (opcode & 0xF000u) >> 12;
+  const uint_fast16_t nnn = opcode & 0x0FFFu;
+  const uint_fast8_t n = opcode & 0x000Fu;
+  const uint_fast8_t x = (opcode & 0x0F00u) >> 8;
+  const uint_fast8_t y = (opcode & 0x00F0u) >> 4;
+  const uint_fast8_t kk = opcode & 0x00FFu;
+
   switch (op0) {
   case 0x0:
     switch (kk) {
-    case 0xE0: // CLS
-      memset(&c8->disp.pixels, 0, sizeof(c8->disp.pixels));
+    case 0xE0:
+      memset(c8->disp.pixels, 0, sizeof c8->disp.pixels);
       break;
-    case 0xEE: // RET
-      c8->sp--;
-      c8->pc = c8->stack[c8->sp];
+    case 0xEE:
+      if (c8->sp > 0) {
+        c8->sp--;
+        c8->pc = c8->stack[c8->sp];
+      }
       break;
     }
     break;
-  case 0x1: // JP addr
+
+  case 0x1:
     c8->pc = nnn;
     break;
-  case 0x2: // CALL addr
-    c8->stack[c8->sp] = c8->pc;
-    c8->sp++;
-    c8->pc = nnn;
-    break;
-  case 0x3: // SE Vx, byte
-    if (c8->V[x] == kk) {
-      c8->pc += 2;
+
+  case 0x2:
+    if (c8->sp < CHIP8_STACK_LEN) {
+      c8->stack[c8->sp] = c8->pc;
+      c8->sp++;
+      c8->pc = nnn;
     }
     break;
-  case 0x4: // SNE Vx, byte
-    if (c8->V[x] != kk) {
+
+  case 0x3:
+    if (c8->V[x] == kk)
       c8->pc += 2;
-    }
     break;
-  case 0x5: // SE Vx, Vy
-    if (c8->V[x] == c8->V[y]) {
+
+  case 0x4:
+    if (c8->V[x] != kk)
       c8->pc += 2;
-    }
     break;
-  case 0x6: // LD Vx, byte
+
+  case 0x5:
+    if (c8->V[x] == c8->V[y])
+      c8->pc += 2;
+    break;
+
+  case 0x6:
     c8->V[x] = kk;
     break;
-  case 0x7: // ADD Vx, byte
-    c8->V[x] += kk;
+
+  case 0x7:
+    c8->V[x] = (uint8_t)(c8->V[x] + kk);
     break;
+
   case 0x8:
     switch (n) {
-    case 0x0: // LD Vx, Vy
+    case 0x0:
       c8->V[x] = c8->V[y];
       break;
-    case 0x1: // OR Vx, Vy
+    case 0x1:
       c8->V[x] |= c8->V[y];
       break;
-    case 0x2: // AND Vx, Vy
+    case 0x2:
       c8->V[x] &= c8->V[y];
       break;
-    case 0x3: // XOR Vx, Vy
+    case 0x3:
       c8->V[x] ^= c8->V[y];
       break;
-    case 0x4: // ADD Vx, Vy
-      uint16_t sum = c8->V[x] + c8->V[y];
-      c8->V[0xF] = (sum > 0xFF) ? 1 : 0;
-      c8->V[x] = sum & 0xFF;
+    case 0x4: {
+      const uint_fast16_t sum = (uint_fast16_t)c8->V[x] + c8->V[y];
+      c8->V[0xF] = sum > 0xFFu;
+      c8->V[x] = (uint8_t)(sum & 0xFFu);
       break;
-    case 0x5: // SUB Vx, Vy
-      c8->V[0xF] = (c8->V[x] > c8->V[y]) ? 1 : 0;
-      c8->V[x] -= c8->V[y];
+    }
+    case 0x5:
+      c8->V[0xF] = c8->V[x] > c8->V[y];
+      c8->V[x] = (uint8_t)(c8->V[x] - c8->V[y]);
       break;
-    case 0x6: // SHR Vx {, Vy}
-      c8->V[0xF] = c8->V[x] & 0x1;
+    case 0x6:
+      c8->V[0xF] = c8->V[x] & 1u;
       c8->V[x] >>= 1;
       break;
-    case 0x7: // SUBN Vx, Vy
-      c8->V[0xF] = (c8->V[y] > c8->V[x]) ? 1 : 0;
-      c8->V[x] = c8->V[y] - c8->V[x];
+    case 0x7:
+      c8->V[0xF] = c8->V[y] > c8->V[x];
+      c8->V[x] = (uint8_t)(c8->V[y] - c8->V[x]);
       break;
-    case 0xE: // SHL Vx {, Vy}
-      c8->V[0xF] = (c8->V[x] & 0x80) >> 7;
+    case 0xE:
+      c8->V[0xF] = (c8->V[x] >> 7) & 1u;
       c8->V[x] <<= 1;
       break;
     }
     break;
-  case 0x9: // SNE Vx, Vy
-    if (c8->V[x] != c8->V[y]) {
+
+  case 0x9:
+    if (c8->V[x] != c8->V[y])
       c8->pc += 2;
-    }
     break;
-  case 0xA: // LD I, addr
+
+  case 0xA:
     c8->I = nnn;
     break;
-  case 0xB: // JP V0, addr
+
+  case 0xB:
     c8->pc = nnn + c8->V[0];
     break;
-  case 0xC: // RND Vx, byte
-    c8->V[x] = (rand() % 256) & kk;
+
+  case 0xC:
+    c8->V[x] = (uint8_t)((rand() & 0xFF) & kk);
     break;
-  case 0xD: { // DRW Vx, Vy, nibble
-    int col =
+
+  case 0xD: {
+    const int col =
         display_draw_sprite(&c8->disp, &c8->mem, c8->I, c8->V[x], c8->V[y], n);
-    c8->V[0xF] = col ? 1 : 0;
+    c8->V[0xF] = col ? 1u : 0u;
     break;
   }
+
   case 0xE:
     switch (kk) {
-    case 0x9E: // SKP Vx
-      if (c8->input.keys[c8->V[x]] != 0) {
+    case 0x9E:
+      if (c8->input.keys[c8->V[x]])
         c8->pc += 2;
-      }
       break;
-    case 0xA1: // SKNP Vx
-      if (c8->input.keys[c8->V[x]] == 0) {
+    case 0xA1:
+      if (!c8->input.keys[c8->V[x]])
         c8->pc += 2;
-      }
       break;
     }
     break;
+
   case 0xF:
     switch (kk) {
-    case 0x07: // LD Vx, DT
+    case 0x07:
       c8->V[x] = c8->timers.dt;
       break;
-    case 0x0A: // LD Vx, K
+    case 0x0A:
       input_wait_for_key(&c8->input, x);
       break;
-    case 0x15: // LD DT, Vx
+    case 0x15:
       c8->timers.dt = c8->V[x];
       break;
-    case 0x18: // LD ST, Vx
+    case 0x18:
       c8->timers.st = c8->V[x];
       break;
-    case 0x1E: // ADD I, Vx
-      c8->I += c8->V[x];
+    case 0x1E:
+      c8->I = (uint16_t)(c8->I + c8->V[x]);
       break;
-    case 0x29: // LD F, Vx
-      c8->I = FONTSET_ADDR + (c8->V[x] * 5);
+    case 0x29:
+      c8->I = (uint16_t)(FONTSET_ADDR + c8->V[x] * 5u);
       break;
-    case 0x33: // LD B, Vx
-      c8->mem.memory[c8->I] = c8->V[x] / 100;
-      c8->mem.memory[c8->I + 1] = (c8->V[x] / 10) % 10;
-      c8->mem.memory[c8->I + 2] = c8->V[x] % 10;
+    case 0x33:
+      c8->mem.memory[c8->I] = (uint8_t)(c8->V[x] / 100);
+      c8->mem.memory[c8->I + 1] = (uint8_t)((c8->V[x] / 10) % 10);
+      c8->mem.memory[c8->I + 2] = (uint8_t)(c8->V[x] % 10);
       break;
-    case 0x55: // LD [I], Vx
-      for (int i = 0; i <= x; i++) {
+    case 0x55:
+      for (size_t i = 0; i <= x; i++)
         c8->mem.memory[c8->I + i] = c8->V[i];
-      }
       break;
-    case 0x65: // LD Vx, [I]
-      for (int i = 0; i <= x; i++) {
+    case 0x65:
+      for (size_t i = 0; i <= x; i++)
         c8->V[i] = c8->mem.memory[c8->I + i];
-      }
       break;
     }
     break;
@@ -175,15 +188,16 @@ void chip8_reset(Chip8 *c8) {
   memory_init(&c8->mem);
   display_init(&c8->disp);
   input_init(&c8->input);
+
   c8->I = 0;
   c8->pc = START_ADDR;
   c8->sp = 0;
-  for (int i = 0; i < NUM_REGS; i++) {
+
+  for (size_t i = 0; i < CHIP8_NUM_REGS; i++)
     c8->V[i] = 0;
-  }
-  for (int i = 0; i < STACK_SIZE; i++) {
+
+  for (size_t i = 0; i < CHIP8_STACK_LEN; i++)
     c8->stack[i] = 0;
-  }
 }
 
 void chip8_init(Chip8 *c8) { chip8_reset(c8); }
