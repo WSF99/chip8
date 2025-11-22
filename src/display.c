@@ -7,9 +7,9 @@ void display_init(Display *disp) {
 
 void display_clear(Display *disp) { display_init(disp); }
 
-int display_draw_sprite(Display *disp, Memory *m, uint16_t I, uint8_t x,
-                        uint8_t y, uint8_t n) {
-  int collision = 0;
+uint8_t display_draw_sprite(Display *disp, Memory *m, uint16_t I, uint8_t x,
+                            uint8_t y, uint8_t n) {
+  uint8_t collision = 0;
 
   for (uint8_t row = 0; row < n; row++) {
     uint8_t sprite_byte = m->memory[(uint32_t)I + row];

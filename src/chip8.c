@@ -4,8 +4,8 @@
 #include <string.h>
 
 static uint16_t fetch_opcode(Chip8 *chip8) {
-  const uint_fast8_t hi = memory_read(&chip8->mem, chip8->pc);
-  const uint_fast8_t lo = memory_read(&chip8->mem, chip8->pc + 1);
+  const uint8_t hi = memory_read(&chip8->mem, chip8->pc);
+  const uint8_t lo = memory_read(&chip8->mem, chip8->pc + 1);
   return (uint16_t)((hi << 8) | lo);
 }
 
@@ -13,12 +13,12 @@ void chip8_cycle(Chip8 *c8) {
   const uint16_t opcode = fetch_opcode(c8);
   c8->pc += 2;
 
-  const uint_fast16_t op0 = (opcode & 0xF000u) >> 12;
-  const uint_fast16_t nnn = opcode & 0x0FFFu;
-  const uint_fast8_t n = opcode & 0x000Fu;
-  const uint_fast8_t x = (opcode & 0x0F00u) >> 8;
-  const uint_fast8_t y = (opcode & 0x00F0u) >> 4;
-  const uint_fast8_t kk = opcode & 0x00FFu;
+  const uint8_t op0 = (opcode & 0xF000u) >> 12;
+  const uint16_t nnn = opcode & 0x0FFFu;
+  const uint8_t n = opcode & 0x000Fu;
+  const uint8_t x = (opcode & 0x0F00u) >> 8;
+  const uint8_t y = (opcode & 0x00F0u) >> 4;
+  const uint8_t kk = opcode & 0x00FFu;
 
   switch (op0) {
   case 0x0:
@@ -85,7 +85,7 @@ void chip8_cycle(Chip8 *c8) {
       c8->V[x] ^= c8->V[y];
       break;
     case 0x4: {
-      const uint_fast16_t sum = (uint_fast16_t)c8->V[x] + c8->V[y];
+      const uint16_t sum = (uint16_t)c8->V[x] + c8->V[y];
       c8->V[0xF] = sum > 0xFFu;
       c8->V[x] = (uint8_t)(sum & 0xFFu);
       break;
@@ -127,7 +127,7 @@ void chip8_cycle(Chip8 *c8) {
     break;
 
   case 0xD: {
-    const int col =
+    const uint8_t col =
         display_draw_sprite(&c8->disp, &c8->mem, c8->I, c8->V[x], c8->V[y], n);
     c8->V[0xF] = col ? 1u : 0u;
     break;
